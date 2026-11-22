@@ -1,0 +1,89 @@
+name: plataforma-analise-dados
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-analise}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina no .env}
+      POSTGRES_DB: ${POSTGRES_DB:-analise}
+    volumes: [db_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks: [internal]
+
+  redis:
+    image: redis:7-alpine
+    volumes: [redis_data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks: [internal]
+
+  # Opcional (profile "storage"). As imagens oficiais da MinIO foram removidas dos registries
+  # públicos; o backend S3 será definido antes da Fase 2 (ver ADR-007).
+  minio:
+    profiles: ["storage"]
+    image: ${S3_IMAGE:-s3-image-nao-configurada}
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-analise}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?defina no .env}
+    volumes: [minio_data:/data]
+    ports: ["9001:9001"]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [internal]
+
+  backend:
+    build: ./apps/backend
+    env_file: .env
+    ports: ["8000:8000"]
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v1/health').status==200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks: [internal]
+
+  # Mesmo código do backend (monólito modular), processo diferente. Ver ADR-001.
+  worker:
+    build: ./apps/backend
+    command: celery -A app.infrastructure.celery_app worker --loglevel=INFO
+    env_file: .env
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    restart: unless-stopped
+    networks: [internal]
+
+  frontend:
+    build: ./apps/frontend
+    env_file: .env
+    ports: ["5173:5173"]
+    depends_on: [backend]
+    restart: unless-stopped
+    networks: [internal]
+
+volumes:
+  db_data:
+  redis_data:
+  minio_data:
+
+networks:
+  internal:

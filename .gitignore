@@ -1,0 +1,30 @@
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# Dados e artefatos locais
+*.parquet
+*.joblib
+/data/
+/tmp/
+
+# IDE / SO
+.idea/
+.vscode/
+.DS_Store
