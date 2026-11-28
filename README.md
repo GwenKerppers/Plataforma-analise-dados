@@ -11,7 +11,7 @@ Desenvolvimento incremental por fases. O que está de fato pronto aparece marcad
 | Fase | Escopo | Status |
 |---|---|---|
 | 0 | Arquitetura, ambiente e documentação inicial | Em validação |
-| 1 | Autenticação e isolamento de usuários | Em andamento (etapas 1.1 a 1.3 escritas, ainda não validadas) |
+| 1 | Autenticação e isolamento de usuários | Em andamento (etapas 1.1 a 1.3 validadas por testes; 1.4 escrita, ainda não validada) |
 | 2 | Importação de arquivos e versionamento de datasets | Planejada |
 | 3 | Análise exploratória (estatísticas, qualidade, correlação) | Planejada |
 | 4 | Visualizações e dashboards | Planejada |
@@ -41,6 +41,7 @@ A escolha do monólito modular, do armazenamento em Parquet, da autenticação e
 - [ADR-007 Backend de armazenamento S3 (em aberto)](docs/decisions/007-backend-s3.md)
 - [ADR-008 Modelo de usuários e sessões](docs/decisions/008-modelo-de-sessoes.md)
 - [ADR-009 Fluxo de autenticação](docs/decisions/009-fluxo-de-autenticacao.md)
+- [ADR-010 Rate limiting e sessões](docs/decisions/010-rate-limiting.md)
 
 ## Executar localmente
 

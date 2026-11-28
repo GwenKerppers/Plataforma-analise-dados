@@ -3,6 +3,9 @@
 ## Autenticação (ADR-002)
 Access JWT 15 min (memória); refresh opaco em cookie HttpOnly/Secure/SameSite=Strict, guardado como hash, com rotação; reuso de token rotacionado revoga a família inteira. Senhas Argon2id. Rate limiting (Redis) em login, registro e reset. Exige CORS/CSRF configurados.
 
+## Rate limiting (ADR-010)
+Janela fixa no Redis: cadastro, login (por IP e por e-mail) e renovação. 429 com `Retry-After`. Fail open se o Redis cair. Atrás de proxy, configurar o uvicorn para confiar nos cabeçalhos dele.
+
 ## Isolamento
 Repositórios exigem `owner_id`. Testes parametrizados de acesso horizontal em cada endpoint, inclusive trocando IDs na requisição. Validação sempre no backend.
 

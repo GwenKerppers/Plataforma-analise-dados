@@ -22,6 +22,7 @@ from sqlalchemy.engine import Engine, make_url  # noqa: E402
 from sqlalchemy.orm import Session  # noqa: E402
 
 from app.core.config import get_settings  # noqa: E402
+from app.core.rate_limit import NullRateLimiter, get_rate_limiter  # noqa: E402
 from app.infrastructure.database import get_db  # noqa: E402
 from app.main import app  # noqa: E402
 
@@ -73,6 +74,7 @@ def db(engine: Engine) -> Iterator[Session]:
 def client(db: Session) -> Iterator[TestClient]:
     """Cliente HTTP cujas requisições usam a sessão de teste (tudo é desfeito ao final)."""
     app.dependency_overrides[get_db] = lambda: db
+    app.dependency_overrides[get_rate_limiter] = NullRateLimiter  # os testes de limite o trocam
     try:
         yield TestClient(app)
     finally:

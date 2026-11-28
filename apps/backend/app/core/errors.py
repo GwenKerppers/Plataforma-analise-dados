@@ -22,9 +22,11 @@ class AppError(Exception):
     title = "Erro interno"
     headers: dict[str, str] | None = None
 
-    def __init__(self, detail: str | None = None) -> None:
+    def __init__(self, detail: str | None = None, *, headers: dict[str, str] | None = None) -> None:
         super().__init__(detail or self.title)
         self.detail = detail or self.title
+        if headers is not None:
+            self.headers = headers
 
 
 class NotFoundError(AppError):
@@ -38,6 +40,18 @@ class UnauthorizedError(AppError):
     code = "unauthorized"
     title = "Não autenticado"
     headers = {"WWW-Authenticate": "Bearer"}
+
+
+class TooManyRequestsError(AppError):
+    status_code = 429
+    code = "rate_limited"
+    title = "Muitas requisições"
+
+    def __init__(self, retry_after: int) -> None:
+        super().__init__(
+            "Muitas tentativas. Tente novamente em instantes.",
+            headers={"Retry-After": str(retry_after)},
+        )
 
 
 class ConflictError(AppError):

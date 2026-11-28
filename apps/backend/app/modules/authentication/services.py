@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
-from app.core.errors import ConflictError, UnauthorizedError
+from app.core.errors import ConflictError, NotFoundError, UnauthorizedError
 from app.modules.authentication.models import UserSession
 from app.modules.authentication.repositories import SessionRepository
 from app.modules.authentication.security import (
@@ -107,6 +107,21 @@ class AuthService:
         if session is not None:
             self.sessions.revoke_family(session.family_id, "logout", datetime.now(UTC))
             self.db.commit()
+
+    def list_sessions(self, user: User) -> list[UserSession]:
+        return self.sessions.list_active_for_user(user.id, datetime.now(UTC))
+
+    def revoke_session(self, user: User, family_id: uuid.UUID) -> None:
+        now = datetime.now(UTC)
+        if not self.sessions.has_active_family(user.id, family_id, now):
+            # Mesma resposta para sessão inexistente e sessão de outro usuário.
+            raise NotFoundError("Sessão não encontrada.")
+        self.sessions.revoke_family(family_id, "logout", now)
+        self.db.commit()
+
+    def revoke_all_sessions(self, user: User) -> None:
+        self.sessions.revoke_all_for_user(user.id, "logout", datetime.now(UTC))
+        self.db.commit()
 
     def _issue(self, user: User, *, family_id: uuid.UUID, user_agent: str | None) -> IssuedTokens:
         raw_refresh = generate_refresh_token()

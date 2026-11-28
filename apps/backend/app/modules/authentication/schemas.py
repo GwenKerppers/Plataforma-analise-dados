@@ -1,5 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field, StringConstraints
+import uuid
+from datetime import datetime
 from typing import Annotated
+
+from pydantic import BaseModel, EmailStr, Field, StringConstraints
 
 FullName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
 
@@ -21,3 +24,12 @@ class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
+
+
+class SessionOut(BaseModel):
+    """Uma sessão ativa. O `id` é o identificador da família, nunca o token nem seu hash."""
+
+    id: uuid.UUID
+    user_agent: str | None
+    last_active_at: datetime
+    expires_at: datetime

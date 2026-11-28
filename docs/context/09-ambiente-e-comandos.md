@@ -41,4 +41,5 @@ Se pedir login: usar navegador ou Personal Access Token. Se o branch for `master
 | Erros "No such image" de postgres/redis junto com o do MinIO | Consequência: o Compose abortou os pulls |
 | Variável obrigatória faltando | Conferir `.env` (`POSTGRES_PASSWORD`, `MINIO_ROOT_PASSWORD`, `S3_IMAGE=`) |
 | Banco com usuário antigo `datamind` | `docker compose down -v` (volume antigo) |
+| `ruff`/`pytest`: `Failed to initialize cache ... Permission denied` | `/srv` pertencia ao root. Corrigido no Dockerfile (`chown`); exige `docker compose build backend`. Sem rebuild: `ruff check --no-cache .` e `pytest -p no:cacheprovider` |
 | Build lento / parece parado | Normal no primeiro `npm install`/`pip install`; esperar ~10 min antes de suspeitar |

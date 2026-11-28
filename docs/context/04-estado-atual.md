@@ -5,6 +5,14 @@
 ## Fase atual
 **Fase 0: arquitetura e ambiente.** Status: **em validação** (não concluída).
 
+## Validação das etapas 1.1 a 1.3 (confirmada por execução)
+Na máquina da dona do projeto: `docker compose run --rm backend pytest` = **42 passed**; `ruff check .` = All checks passed; `alembic upgrade head` sem erro. Dockerfile ajustado (chown de /srv) para ruff/pytest funcionarem como usuário não-root. Commit das etapas 1.1 a 1.3 feito pela dona do projeto (confirmar o hash do push quando informado). Não conferidos ainda: `/api/v1/health/ready` no navegador e o frontend ("API: ok").
+
+**Etapa 1.4: escrita, NÃO validada.** Rate limiting no Redis (`core/rate_limit.py`, config em `Settings`), endpoints `GET /users/me/sessions`, `DELETE /users/me/sessions/{id}`, `DELETE /users/me/sessions`, e testes: `test_rate_limit.py` (limitador com Redis real + endpoints com limites baixos), `test_isolation.py` (dois usuários: não leem nem revogam sessões um do outro; 404 idêntico para sessão alheia e inexistente). CI agora tem serviço Redis. ADR-010. Validar com `docker compose run --rm backend pytest` (contagem estática: 62 testes = 42 anteriores + 8 de rate limit + 12 de isolamento; vale o número que o pytest reportar).
+
+### Histórico: primeira execução de testes (etapas 1.1 a 1.3)
+`docker compose run --rm backend pytest`: **39 passaram, 1 falhou** (40 coletados). A falha era um bug do próprio teste (`test_invalid_request_id_is_replaced` usava acentos em cabeçalho HTTP, que o httpx não aceita); corrigido com valores ASCII parametrizados. Confirmado por execução: autenticação (16 testes), esquema e migração 0001 sem drift (8), segurança (8). `ruff check` ainda não confirmado (falhou antes por permissão do cache; Dockerfile corrigido). Ainda não conferidos: `/api/v1/health/ready`, `alembic upgrade head` no banco real e o frontend.
+
 ## Fase 1 (em andamento)
 Etapas: 1.1 base do backend, 1.2 modelos de identidade + migração, 1.3 endpoints de auth, 1.4 rate limit e testes de isolamento, 1.5 frontend base, 1.6 telas de login/cadastro, 1.7 CI e lockfiles. Reset de senha por e-mail fica no fim da Fase 1, com envio **somente de desenvolvimento** (grava o link no log), identificado como tal.
 

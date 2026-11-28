@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
 from app.core.errors import UnauthorizedError
+from app.core.rate_limit import RateLimiter, get_rate_limiter
 from app.infrastructure.database import get_db
 from app.modules.authentication.security import decode_access_token
 from app.modules.authentication.services import AuthService
@@ -16,6 +17,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 DbDep = Annotated[Session, Depends(get_db)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
+RateLimiterDep = Annotated[RateLimiter, Depends(get_rate_limiter)]
 
 
 def get_auth_service(db: DbDep, settings: SettingsDep) -> AuthService:
