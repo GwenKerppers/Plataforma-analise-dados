@@ -11,3 +11,6 @@ Access token JWT curto (15 min) mantido em memória no frontend. Refresh token o
 
 ## Consequências
 Reduz exposição a XSS e roubo de tokens. Exige configuração de CORS e proteção CSRF. Testes parametrizados de acesso horizontal são obrigatórios por endpoint.
+
+## Esclarecimento (etapa 1.2)
+Refresh tokens são aleatórios e de alta entropia, por isso são guardados com hash SHA-256 (rápido e adequado a esse caso). Argon2id fica restrito às senhas, que têm baixa entropia. Cada rotação cria uma nova linha em `user_sessions` na mesma `family_id`; a linha anterior recebe `used_at`.

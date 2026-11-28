@@ -7,6 +7,23 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: analise
+          POSTGRES_PASSWORD: analise
+          POSTGRES_DB: analise
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U analise -d analise"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://analise:analise@localhost:5432/analise
+      JWT_SECRET: segredo-apenas-para-testes-no-ci-0123456789
     defaults:
       run:
         working-directory: apps/backend

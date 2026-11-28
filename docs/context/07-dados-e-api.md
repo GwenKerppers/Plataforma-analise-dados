@@ -16,7 +16,7 @@ Diagrama ER em `docs/architecture/overview.md`.
 - `dataset_versions` guarda chaves de storage (original e parquet), `file_hash_sha256`, contagens, tamanho, status, esquema. Único `(dataset_id, version_number)`.
 - Importação com preview exige estado intermediário `PENDING_CONFIRMATION` (com expiração e limpeza).
 - `processing_tasks`: estados PENDING, QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED; `idempotency_key` único por usuário; `attempts`; `error_code`.
-- `user_sessions`: apenas hash do refresh token, `family_id`, `revoked_at`.
+- `user_sessions`: cada linha = um refresh token emitido. Colunas: hash SHA-256 do token (único), `family_id`, `expires_at`, `used_at` (token já rotacionado), `revoked_at`, `user_agent`, `ip_address`. Reapresentar um token com `used_at` preenchido revoga a família inteira.
 - Linhas de planilha nunca no PostgreSQL.
 - Exclusão: CASCADE só dentro do mesmo agregado; objetos do storage removidos por serviço explícito e auditado.
 
@@ -33,4 +33,4 @@ Dados: `/datasets`, `/datasets/{id}`, `/datasets/{id}/preview`, `/datasets/{id}/
 Demais: `/analytics`, `/visualizations`, `/dashboards`, `/ml/experiments`, `/ai/conversations[/{id}/messages]`, `/tasks/{id}`.
 
 ## Implementado hoje
-Apenas `GET /api/v1/health`.
+`GET /api/v1/health` e `GET /api/v1/health/ready`. Tabelas `users` e `user_sessions` (migração 0001, a validar). Endpoints de auth: etapa 1.3.

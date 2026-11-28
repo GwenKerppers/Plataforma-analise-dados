@@ -11,7 +11,7 @@ Desenvolvimento incremental por fases. O que está de fato pronto aparece marcad
 | Fase | Escopo | Status |
 |---|---|---|
 | 0 | Arquitetura, ambiente e documentação inicial | Em validação |
-| 1 | Autenticação e isolamento de usuários | Planejada |
+| 1 | Autenticação e isolamento de usuários | Em andamento (etapas 1.1 a 1.3 escritas, ainda não validadas) |
 | 2 | Importação de arquivos e versionamento de datasets | Planejada |
 | 3 | Análise exploratória (estatísticas, qualidade, correlação) | Planejada |
 | 4 | Visualizações e dashboards | Planejada |
@@ -39,6 +39,8 @@ A escolha do monólito modular, do armazenamento em Parquet, da autenticação e
 - [ADR-005 Contratos de API](docs/decisions/005-contratos-api.md)
 - [ADR-006 Dependências adiadas](docs/decisions/006-dependencias-adiadas.md)
 - [ADR-007 Backend de armazenamento S3 (em aberto)](docs/decisions/007-backend-s3.md)
+- [ADR-008 Modelo de usuários e sessões](docs/decisions/008-modelo-de-sessoes.md)
+- [ADR-009 Fluxo de autenticação](docs/decisions/009-fluxo-de-autenticacao.md)
 
 ## Executar localmente
 
@@ -57,10 +59,11 @@ docker compose up --build
 
 ## Testes (backend)
 
+Pelo Docker (não exige Python instalado):
+
 ```bash
-cd apps/backend
-pip install -e ".[dev]"
-ruff check . && pytest
+docker compose run --rm backend ruff check .
+docker compose run --rm backend pytest
 ```
 
 ## Problemas encontrados na validação da Fase 0

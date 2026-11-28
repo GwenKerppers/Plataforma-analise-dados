@@ -13,8 +13,15 @@ docker compose up --build   # 1º build: 3 a 10+ min
 - Com S3 opcional: `docker compose --profile storage up` (exige `S3_IMAGE` no `.env`).
 
 ## Testes
+Backend, pelo Docker (sem instalar Python):
 ```powershell
-cd apps/backend ; pip install -e ".[dev]" ; ruff check . ; pytest
+docker compose run --rm backend ruff check .
+docker compose run --rm backend pytest
+docker compose run --rm backend alembic upgrade head   # aplica as migrações no banco de desenvolvimento
+docker compose run --rm backend alembic current
+```
+Frontend:
+```powershell
 cd apps/frontend ; npm install ; npm run typecheck ; npm run build
 ```
 
